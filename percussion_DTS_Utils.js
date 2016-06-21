@@ -83,11 +83,16 @@ var PercUtils = (function ($) {
         },
         load : function(key, storageType){
             if (!(storageAvailable(storageType))){return false;}
+            
             var record = JSON.parse(window[storageType].getItem(key));
             if (!record){
                 return false;
             }
-            return (new Date().getTime() < record.timestamp && JSON.parse(record.value));
+            if (dataType == "application/json"){
+                return (new Date().getTime() < record.timestamp && JSON.parse(record.value));
+            } else if (dataType == "application/xml"){
+                return (new Date().getTime() < record.timestamp && record.value);
+            }
         }
     }
     // 
