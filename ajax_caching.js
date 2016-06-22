@@ -14,22 +14,14 @@
 
 var PercUtils = (function ($) {
     var oKeyDeferredMap = {};
-
-    function readFromStorage(cacheKey) {
-        var sValue = percStorage.load(cacheKey, "sessionStorage");
-        return sValue;
-    }
-
-    function writeToStorage(cacheKey, DtsData, dataType, TTL) {
-        percStorage.save(cacheKey, DtsData, TTL, "sessionStorage", dataType);
-        console.info('Storing AJAX Response data to local Cache');
-    }
     
     var cachedAjaxPromise = function (url, ajaxOptions, TTL, storageType, cacheKey) {
         var cacheKey;
         if (!(cacheKey)){
             cacheKey = url;
         }
+        // convert TTL in Minutes to milliseconds
+        var TTL = TTL * 60 * 1000;
         var oDeferred = oKeyDeferredMap[cacheKey];
         var cacheAvailable = storageAvailable(storageType);
         var sValue;
@@ -38,7 +30,7 @@ var PercUtils = (function ($) {
             oDeferred = new jQuery.Deferred();
             oKeyDeferredMap[cacheKey] = oDeferred;
             if (cacheAvailable){
-                sValue = readFromStorage(cacheKey);
+                sValue = readFromStorage(cacheKey, TTL);
             }
 
             if (sValue) {
@@ -55,13 +47,13 @@ var PercUtils = (function ($) {
                         console.error('customer info request failed: ' + errorThrown);
                         oDeferred.reject(xhr, textStatus, errorThrown);
                     },
-                    success: function (DtsData, status, xhr) {
+                    success: function (response, status, xhr) {
                         var dataType = xhr.getResponseHeader("content-type");
                         console.info('AJAX query successful');
                         if(cacheAvailable){
-                            writeToStorage(cacheKey, DtsData, dataType, TTL);
+                            writeToStorage(cacheKey, response, dataType, TTL);
                         }
-                        oDeferred.resolve(DtsData);
+                        oDeferred.resolve(response);
                     }
                 });
 
@@ -73,11 +65,20 @@ var PercUtils = (function ($) {
         }
         return oDeferred.promise();
     };
+    
+    function readFromStorage(cacheKey, TTL) {
+        var sValue = percStorage.load(cacheKey, "sessionStorage", TTL);
+        return sValue;
+    }
+
+    function writeToStorage(cacheKey, response, dataType, TTL) {
+        percStorage.save(cacheKey, response, TTL, "sessionStorage", dataType);
+        console.info('Storing AJAX Response data to local Cache');
+    }
 
     var percStorage = {
         save : function(cacheKey, data, TTL, storageType, dataType){
             if (!(storageAvailable(storageType))){return false;}
-            var TTL = TTL * 60 * 1000;
             if (dataType == "application/json"){
                 data = JSON.stringify(data);
             } else if (dataType == "application/xml"){
@@ -88,11 +89,14 @@ var PercUtils = (function ($) {
             window[storageType].setItem(cacheKey, JSON.stringify(record));
             return data;
         },
-        load : function(cacheKey, storageType){
+        load : function(cacheKey, storageType, TTL){
             if (!(storageAvailable(storageType))){return false;}
             var record = JSON.parse(window[storageType].getItem(cacheKey));
             if (!record){
                 return false;
+            }
+            if (new Date().getTime() - TTL > record.timestamp){
+                window[storageType].removeItem(cacheKey);
             }
             var dataType = record.dataType;
             if (dataType == "application/json"){
