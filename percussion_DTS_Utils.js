@@ -20,8 +20,7 @@ var PercUtils = (function ($) {
         return sValue;
     }
 
-    function writeToStorage(key, DtsData, xhr, TTL) {
-        var dataType = xhr.getResponseHeader("content-type");
+    function writeToStorage(key, DtsData, dataType, TTL) {
         percStorage.save(key, DtsData, TTL, "sessionStorage", dataType);
         console.info('Storing AJAX Response data to local Cache');
     }
@@ -53,9 +52,10 @@ var PercUtils = (function ($) {
                         oDeferred.reject();
                     },
                     success: function (DtsData, status, xhr) {
+                        var dataType = xhr.getResponseHeader("content-type");
                         console.info('AJAX query successful');
                         if(cacheAvailable){
-                            writeToStorage(url, DtsData, xhr, TTL);
+                            writeToStorage(url, DtsData, dataType, TTL);
                         }
                         oDeferred.resolve(DtsData);
                     }
@@ -77,17 +77,17 @@ var PercUtils = (function ($) {
                 var oSerializer = new XMLSerializer();
                 data = oSerializer.serializeToString(data);
             }
-            var record = {value: data, timestamp: new Date().getTime() + TTL}
+            var record = {timestamp: (new Date().getTime() + TTL), dataType: dataType, value: data}
             window[storageType].setItem(key, JSON.stringify(record));
             return data;
         },
         load : function(key, storageType){
             if (!(storageAvailable(storageType))){return false;}
-            
             var record = JSON.parse(window[storageType].getItem(key));
             if (!record){
                 return false;
             }
+            var dataType = record.dataType;
             if (dataType == "application/json"){
                 return (new Date().getTime() < record.timestamp && JSON.parse(record.value));
             } else if (dataType == "application/xml"){
