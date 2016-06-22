@@ -43,7 +43,7 @@ var PercUtils = (function ($) {
 
             if (sValue) {
                 console.info('Cached Data found for AJAX query: ');
-                console.info(url);
+                console.info(cacheKey);
                 oDeferred.resolve(sValue);
             } else {
                 if (!ajaxOptions) {
@@ -67,6 +67,9 @@ var PercUtils = (function ($) {
 
                 $.ajax(url, ajaxOptions);
             }
+        } else {
+            console.info('Cached Data found in Deferred Object for AJAX query: ');
+            console.info(cacheKey);
         }
         return oDeferred.promise();
     };
