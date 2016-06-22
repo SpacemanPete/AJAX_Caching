@@ -12,7 +12,7 @@
 //
 // ************************************************************************
 
-var PercUtils = (function ($) {
+var AJAX_Caching = (function ($) {
     var oKeyDeferredMap = {};
     
     var cachedAjaxPromise = function (url, ajaxOptions, TTL, storageType, cacheKey) {
@@ -95,8 +95,10 @@ var PercUtils = (function ($) {
             if (!record){
                 return false;
             }
+            // check TTL and if expired, remove stored item from storage
             if (new Date().getTime() - TTL > record.timestamp){
                 window[storageType].removeItem(cacheKey);
+                return false;
             }
             var dataType = record.dataType;
             if (dataType == "application/json"){

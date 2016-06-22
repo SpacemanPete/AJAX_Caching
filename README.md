@@ -1,11 +1,11 @@
-#Perc_JS_Utils
+#AJAX_Caching
 Javascript utilities API.
 
-##PercUtils.cachedAjaxPromise 
+##AJAX_Caching.cachedAjaxPromise 
     Function to retieve data from a remote server via AJAX request and cache response for specified period of time.
     Works with JSON and XML data server responses. 
 
-    PercUtils.cachedAjaxPromise(URL, ajaxOptions, TTL, storageType, cacheKey).then(successCallback, errorCallback);
+    AJAX_Caching.cachedAjaxPromise(URL, ajaxOptions, TTL, storageType, cacheKey).then(successCallback, errorCallback);
     
 
 ###Options
@@ -41,7 +41,7 @@ Javascript utilities API.
 
 ###Usage
 
-    PercUtils.cachedAjaxPromise(
+    AJAX_Caching.cachedAjaxPromise(
         jQuery.getDeliveryServiceBase() + '/perc-metadata-services/metadata/get',
         {
             type: "POST",
