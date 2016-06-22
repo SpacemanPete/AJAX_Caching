@@ -53,7 +53,7 @@ var PercUtils = (function ($) {
                 $.extend(ajaxOptions, {
                     error: function (xhr, textStatus, errorThrown) {
                         console.error('customer info request failed: ' + errorThrown);
-                        oDeferred.reject();
+                        oDeferred.reject(xhr, textStatus, errorThrown);
                     },
                     success: function (DtsData, status, xhr) {
                         var dataType = xhr.getResponseHeader("content-type");
