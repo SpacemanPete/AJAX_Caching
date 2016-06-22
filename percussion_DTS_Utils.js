@@ -95,7 +95,9 @@ var PercUtils = (function ($) {
             if (dataType == "application/json"){
                 return (new Date().getTime() < record.timestamp && JSON.parse(record.value));
             } else if (dataType == "application/xml"){
-                return (new Date().getTime() < record.timestamp && record.value);
+                var oParser = new DOMParser();
+                var XMLResponse = oParser.parseFromString(record.value, "text/xml");
+                return (new Date().getTime() < record.timestamp && XMLResponse);
             }
         }
     }
