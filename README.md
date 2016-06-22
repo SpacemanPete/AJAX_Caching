@@ -5,7 +5,7 @@ Javascript utilities API.
     Function to retieve data from a remote server via AJAX request and cache response for specified period of time.
     Works with JSON and XML data server responses. 
 
-    PercUtils.cachedAjaxPromise(URL, ajaxOptions, TTL, storageType).then(successCallback, errorCallback);
+    PercUtils.cachedAjaxPromise(URL, ajaxOptions, TTL, storageType, cacheKey).then(successCallback, errorCallback);
     
 
 ###Options
@@ -15,7 +15,7 @@ Javascript utilities API.
     Type: String
 
 ####ajaxOptions - Optional
-    Enter optional AJAX options.
+    Enter optional AJAX options, enter 'false' if none.
     Type: Object {}
     Example: 
         {
@@ -28,12 +28,16 @@ Javascript utilities API.
     Enter a time-to-live for the cached data in minutes.
     Type: Number
 
-####storageType
+####storageType - Required
     Enter the type of storage to save data to.
     Type: String
     Example: 
         "localStorage"
         "sessionStorage"
+
+####cacheKey - Optional
+    Enter an optional cacheKey. if non entered, function will use the URL as the cacheKey.
+    Type: String
 
 ###Usage
 

@@ -15,26 +15,30 @@
 var PercUtils = (function ($) {
     var oKeyDeferredMap = {};
 
-    function readFromStorage(key) {
-        var sValue = percStorage.load(key, "sessionStorage");
+    function readFromStorage(cacheKey) {
+        var sValue = percStorage.load(cacheKey, "sessionStorage");
         return sValue;
     }
 
-    function writeToStorage(key, DtsData, dataType, TTL) {
-        percStorage.save(key, DtsData, TTL, "sessionStorage", dataType);
+    function writeToStorage(cacheKey, DtsData, dataType, TTL) {
+        percStorage.save(cacheKey, DtsData, TTL, "sessionStorage", dataType);
         console.info('Storing AJAX Response data to local Cache');
     }
     
-    var cachedAjaxPromise = function (url, ajaxOptions, TTL, storageType) {
-        var oDeferred = oKeyDeferredMap[url];
+    var cachedAjaxPromise = function (url, ajaxOptions, TTL, storageType, cacheKey) {
+        var cacheKey;
+        if (!(cacheKey)){
+            cacheKey = url;
+        }
+        var oDeferred = oKeyDeferredMap[cacheKey];
         var cacheAvailable = storageAvailable(storageType);
         var sValue;
 
         if (!oDeferred) {
             oDeferred = new jQuery.Deferred();
-            oKeyDeferredMap[url] = oDeferred;
+            oKeyDeferredMap[cacheKey] = oDeferred;
             if (cacheAvailable){
-                sValue = readFromStorage(url);
+                sValue = readFromStorage(cacheKey);
             }
 
             if (sValue) {
@@ -55,7 +59,7 @@ var PercUtils = (function ($) {
                         var dataType = xhr.getResponseHeader("content-type");
                         console.info('AJAX query successful');
                         if(cacheAvailable){
-                            writeToStorage(url, DtsData, dataType, TTL);
+                            writeToStorage(cacheKey, DtsData, dataType, TTL);
                         }
                         oDeferred.resolve(DtsData);
                     }
@@ -68,7 +72,7 @@ var PercUtils = (function ($) {
     };
 
     var percStorage = {
-        save : function(key, data, TTL, storageType, dataType){
+        save : function(cacheKey, data, TTL, storageType, dataType){
             if (!(storageAvailable(storageType))){return false;}
             var TTL = TTL * 60 * 1000;
             if (dataType == "application/json"){
@@ -78,12 +82,12 @@ var PercUtils = (function ($) {
                 data = oSerializer.serializeToString(data);
             }
             var record = {timestamp: (new Date().getTime() + TTL), dataType: dataType, value: data}
-            window[storageType].setItem(key, JSON.stringify(record));
+            window[storageType].setItem(cacheKey, JSON.stringify(record));
             return data;
         },
-        load : function(key, storageType){
+        load : function(cacheKey, storageType){
             if (!(storageAvailable(storageType))){return false;}
-            var record = JSON.parse(window[storageType].getItem(key));
+            var record = JSON.parse(window[storageType].getItem(cacheKey));
             if (!record){
                 return false;
             }
