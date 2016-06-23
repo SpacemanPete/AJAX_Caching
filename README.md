@@ -5,8 +5,10 @@ Javascript utilities API.
     Function to retieve data from a remote server via AJAX request and cache response for specified period of time.
     Works with JSON and XML data server responses. 
 
-    AJAX_Caching.cachedAjaxPromise(URL, ajaxOptions, TTL, storageType, cacheKey).then(successCallback, errorCallback);
+    AJAX_Caching.cachedAjaxPromise(URL, TTL, storageType, [ajaxOptions], [cacheKey]).then(successCallback, errorCallback);
     
+    Returns a jQuery Deferred promise object.
+
 
 ###Options
 
@@ -39,16 +41,18 @@ Javascript utilities API.
     Enter an optional cacheKey. if non entered, function will use the URL as the cacheKey.
     Type: String
 
-###Usage
+###Usage 
 
-    AJAX_Caching.cachedAjaxPromise(
-        jQuery.getDeliveryServiceBase() + '/perc-metadata-services/metadata/get',
-        {
-            type: "POST",
-            data: queryCriteria,
-            contentType: 'application/json',
-        },
-        1, 
-        "sessionStorage"
-    ).then(successCallback, errorCallback);
+    Example of use to call to Percussion DTS Metadata service:
+
+    var url = jQuery.getDeliveryServiceBase() + '/perc-metadata-services/metadata/get';
+    var ajaxOptions = {
+        type: "POST",
+        data: queryCriteria,
+        contentType: 'application/json',
+    };
+    var oneHourTTL = 60; // set timeout for one hour 
+
+
+    AJAX_Caching.cachedAjaxPromise(url, ajaxOptions, oneHourTTL, "sessionStorage").then(successCallback, errorCallback);
 

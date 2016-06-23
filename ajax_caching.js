@@ -15,7 +15,7 @@
 var AJAX_Caching = (function ($) {
     var oKeyDeferredMap = {};
     
-    var cachedAjaxPromise = function (url, ajaxOptions, TTL, storageType, cacheKey) {
+    var cachedAjaxPromise = function (url, TTL, storageType, ajaxOptions, cacheKey) {
         var cacheKey;
         if (!(cacheKey)){
             cacheKey = url;
